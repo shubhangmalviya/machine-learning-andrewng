@@ -62,9 +62,26 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+a2 = sigmoid([ones(m, 1) X] * Theta1');
+a3 = sigmoid([ones(m, 1) a2] * Theta2');
+[a b] = size(a3);
 
+totalSum = 0;
 
+for i=1:m
+    recodedY = zeros(b, 1);
+    recodedY(y(i)) = 1;
+    recodedHypothesis = a3(i,:)';
+    innerMat = recodedY' * log (recodedHypothesis) + (1 - recodedY)' * log (1- recodedHypothesis);
+    totalSum += sum(innerMat);
+end
 
+term1 = Theta1(:,2:end)' .^ 2;
+term2 = Theta2(:,2:end)' .^ 2;
+
+regularizedTerm = (lambda/ (2*m)) * (sum(sum(term1)) + sum(sum(term2)));
+
+J = -1/m * totalSum + regularizedTerm;
 
 
 
