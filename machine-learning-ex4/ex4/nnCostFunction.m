@@ -62,11 +62,17 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
-a2 = sigmoid([ones(m, 1) X] * Theta1');
-a3 = sigmoid([ones(m, 1) a2] * Theta2');
+z2=[ones(m, 1) X] * Theta1';
+a2 = sigmoid(z2);
+
+z3=[ones(m, 1) a2] * Theta2';
+a3 = sigmoid(z3);
+
 [a b] = size(a3);
 
 totalSum = 0;
+capitalDeltaHiddenLayer = 0;
+capitalDeltaInputLayer = 0;
 
 for i=1:m
     recodedY = zeros(b, 1);
@@ -74,6 +80,20 @@ for i=1:m
     recodedHypothesis = a3(i,:)';
     innerMat = recodedY' * log (recodedHypothesis) + (1 - recodedY)' * log (1- recodedHypothesis);
     totalSum += sum(innerMat);
+
+    errorInOutputLayer = recodedHypothesis - recodedY;
+    errorInHiddenLayer = Theta2' * errorInOutputLayer;
+    errorInHiddenLayer = errorInHiddenLayer(2:end) .* sigmoidGradient(z2(i,:))';
+
+    activationHiddenLayer = a2(i,:);
+    inputLayer = X(i,:);
+
+    activationHiddenLayer = [ones(size(activationHiddenLayer),1) activationHiddenLayer];
+    inputLayer = [ones(size(inputLayer),1) inputLayer];
+
+    capitalDeltaHiddenLayer += errorInOutputLayer * activationHiddenLayer;
+    capitalDeltaInputLayer += errorInHiddenLayer * inputLayer;
+
 end
 
 term1 = Theta1(:,2:end)' .^ 2;
@@ -83,9 +103,8 @@ regularizedTerm = (lambda/ (2*m)) * (sum(sum(term1)) + sum(sum(term2)));
 
 J = -1/m * totalSum + regularizedTerm;
 
-
-
-
+Theta1_grad = 1/m * capitalDeltaInputLayer;
+Theta2_grad = 1/m * capitalDeltaHiddenLayer;
 
 
 
