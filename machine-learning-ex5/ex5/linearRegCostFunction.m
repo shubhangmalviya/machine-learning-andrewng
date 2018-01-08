@@ -31,7 +31,7 @@ regularizationTerm = ( lambda / (2 * m) ) * sum (thetaWithout0Term.^2);
 
 J =  (costWithoutRegularization + regularizationTerm);
 
-summationPartOfGrad = (1/m) * sum (X .* error)';
+summationPartOfGrad = 1 / m * X' * error;
 
 regularizedGradTerm = (lambda / m) * theta(2:size(theta), :);
 
